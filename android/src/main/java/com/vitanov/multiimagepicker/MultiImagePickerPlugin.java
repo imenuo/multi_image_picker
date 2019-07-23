@@ -100,10 +100,9 @@ public class MultiImagePickerPlugin implements
 
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_CODE_GRANT_PERMISSIONS && permissions.length == 3) {
+        if (requestCode == REQUEST_CODE_GRANT_PERMISSIONS && permissions.length == 2) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    && grantResults[1] == PackageManager.PERMISSION_GRANTED
-                    && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                    && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 int maxImages = (int) this.methodCall.argument(MAX_IMAGES);
                 boolean enableCamera = (boolean) this.methodCall.argument(ENABLE_CAMERA);
                 HashMap<String, String> options = this.methodCall.argument(ANDROID_OPTIONS);
@@ -113,8 +112,7 @@ public class MultiImagePickerPlugin implements
             } else {
                 if (
                         ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                                ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
-                                ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
+                                ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     finishWithError("PERMISSION_DENIED", "Read, write or camera permission was not granted");
                 } else{
                     finishWithError("PERMISSION_PERMANENTLY_DENIED", "Please enable access to the storage and the camera.");
@@ -587,14 +585,11 @@ public class MultiImagePickerPlugin implements
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this.activity,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this.activity,
-                Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this.activity,
                     new String[]{
                             Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.CAMERA
                     },
                     REQUEST_CODE_GRANT_PERMISSIONS);
 
