@@ -630,6 +630,7 @@ public class MultiImagePickerPlugin implements
         String useDetailsView = options.get("useDetailsView");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
         String selectionLimitReachedText = options.get("selectionLimitReachedText");
+        String nothingSelectedText = options.get("nothingSelectedText");
         ArrayList<Uri> selectedUris = new ArrayList<Uri>();
 
         for (String path : selectedAssets) {
@@ -667,6 +668,10 @@ public class MultiImagePickerPlugin implements
 
         if (selectionLimitReachedText != null && !selectionLimitReachedText.isEmpty()) {
             fishBun.textOnImagesSelectionLimitReached(selectionLimitReachedText);
+        }
+
+        if (nothingSelectedText != null && !nothingSelectedText.isEmpty()) {
+            fishBun.textOnNothingSelected(nothingSelectedText);
         }
 
         if (selectCircleStrokeColor != null && !selectCircleStrokeColor.isEmpty()) {
