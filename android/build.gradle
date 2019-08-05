@@ -36,6 +36,6 @@ android {
 
 dependencies {
     implementation 'androidx.exifinterface:exifinterface:1.0.0'
-    implementation 'com.github.imenuo:FishBun:master-SNAPSHOT'
+    implementation 'com.github.imenuo:FishBun:8c631f11b3'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
 }
