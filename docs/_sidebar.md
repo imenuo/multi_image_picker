@@ -11,14 +11,13 @@
   - [Enable Camera](enablecamera.md)
   - [Metadata](metadata.md)
   - [Customization](theming.md)
+  - [Error Handling](errorhandling.md)
 
 - Troubleshooting
 
   - [General](generaltroubleshooting.md)
   - [Android](androudtroubleshooting.md)
   - [iOS](iostroubleshooting.md)
-
-- [FAQ](faq.md)
 
 - [Upgrading](upgrading.md)
 

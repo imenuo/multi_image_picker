@@ -4,6 +4,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### Changed (v4.5.2)
+
+## 2019-08-19
+
+- Trying to read images that does not exists will now throw AssetNotFoundException [#222](https://github.com/Sh1d0w/multi_image_picker/issues/222)
+ 
+### Changed (v4.5.1)
+
+## 2019-08-17
+
+- Permission Denied error now will be correctly thrown on iOS if the user has disabled camera access.
+
+### Changed (v4.5.0+2)
+
+## 2019-08-13
+
+- Don't pin meta package version
+
+### Changed (v4.5.0+1)
+
+## 2019-08-13
+
+- Make thumb provider use non depracated plugin methods
+- Temporarily pin meta package version to 1.1.7
+
+### Changed (v4.5.0)
+
+## 2019-08-12
+
+- The plugin now returns file paths as well. To obtain the asset file path use `await asset.filePath`
+- Removed `deleteImages` method. This plugin purpose is only to pick images.
+- Deprecated `Asset.requestThumbnail` method. Use `Asset.getThumbByteData` instead.
+- Deprecated `Asset.requestOriginal` method. Use `Asset.getByteData` instead.
+- Deprecated `Asset.requestMetadata` method. Use `Asset.metadata` instead.
+
+### Changed (v4.4.1)
+
+## 2019-08-06
+
+- Pin minimum Flutter version required to 1.7.8
+
+### Changed (v4.4.0)
+
+## 2019-08-06
+
+- Added Material option `textOnNothingSelected` [#201](https://github.com/Sh1d0w/multi_image_picker/issues/201)
+- Updated the code to use defaultBinaryMessenger instead of the deprecated BinaryMessenger
+- `pickImages` now throws NoImagesSelectedException, PermissionDeniedException and PermissionPermanentlyDeniedExeption in addition to PlatformException. You can implement different logic for handling each case separately now.
+- dateTime, dateTimeOriginal and dateTimeDigitized in the Metadata.exif object will now properly be returned as strings.  The format is "YYYY:MM:DD HH:MM:SS" with time shown in 24-hour format as per Exif spec.
+- Added the ability to change the icons for back and done buttons on Android. For more information see the [documentation](https://sh1d0w.github.io/multi_image_picker/#/theming) and the example app in this repository.
+
 ### Changed (v4.3.6)
 
 ## 2019-07-18
