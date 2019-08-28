@@ -611,7 +611,7 @@ public class MultiImagePickerPlugin implements
 
         if (!okButtonDrawable.isEmpty()) {
             int id = context.getResources().getIdentifier(okButtonDrawable, "drawable", context.getPackageName());
-            fishBun.setOkButtonDrawable(ContextCompat.getDrawable(context, id));
+            fishBun.setDoneButtonDrawable(ContextCompat.getDrawable(context, id));
         }
 
         if (actionBarColor != null && !actionBarColor.isEmpty()) {
