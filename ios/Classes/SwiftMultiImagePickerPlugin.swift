@@ -50,6 +50,12 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch (call.method) {
         case "pickImages":
+            let status: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
+            
+            if (status == PHAuthorizationStatus.denied) {
+                return result(FlutterError(code: "PERMISSION_PERMANENTLY_DENIED", message: "The user has denied the gallery access.", details: nil))
+            }
+            
             let vc = BSImagePickerViewController()
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let maxImages = arguments["maxImages"] as! Int
@@ -115,7 +121,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 }, deselect: { (asset: PHAsset) -> Void in
 
                 }, cancel: { (assets: [PHAsset]) -> Void in
-                    result([])
+                    result(FlutterError(code: "CANCELLED", message: "The user has cancelled the selection", details: nil))
                 }, finish: { (assets: [PHAsset]) -> Void in
                     var results = [NSDictionary]();
                     for asset in assets {
@@ -160,9 +166,11 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                         })
 
                 if(PHInvalidImageRequestID != ID) {
-                    result(true);
+                    return result(true);
                 }
             }
+            
+            return result(FlutterError(code: "ASSET_DOES_NOT_EXIST", message: "The requested image does not exist.", details: nil))
             break;
         case "requestOriginal":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
@@ -191,28 +199,46 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 })
 
                 if(PHInvalidImageRequestID != ID) {
-                    result(true);
+                    return result(true);
                 }
             }
+            
+            return result(FlutterError(code: "ASSET_DOES_NOT_EXIST", message: "The requested image does not exist.", details: nil))
             break;
         case "refreshImage":
             result(true) ;
             break ;
-        case "deleteImages":
+        case "requestFilePath":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let identifiers = arguments["identifiers"] as! Array<String>
-            let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
-            PHPhotoLibrary.shared().performChanges( {
-                PHAssetChangeRequest.deleteAssets(assets)
-            },
-            completionHandler: { success, error in
-                if(success) {
-                    result(true)
+            let identifier = arguments["identifier"] as! String
+            let manager = PHImageManager.default()
+            let options = PHImageRequestOptions()
+
+            options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
+            options.isSynchronous = false
+            options.isNetworkAccessAllowed = true
+
+            let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+
+            if (assets.count > 0) {
+                let asset: PHAsset = assets[0];
+
+                self.getURL(ofPhotoWith: asset) { (url) in
+                    if let url = url {
+                        let absoluteUrl = url.absoluteString;
+                        let start = absoluteUrl.index(absoluteUrl.startIndex, offsetBy: 7)
+                        let end = absoluteUrl.index(absoluteUrl.endIndex, offsetBy: 0)
+                        let range = start..<end
+                        
+                        // Remove all file:// crap
+                        let slicedUrl = absoluteUrl[range]
+                        
+                        result(String(slicedUrl))
+                    }
                 }
-                else {
-                    result(false)
-                }
-            })
+            } else {
+                return result(FlutterError(code: "ASSET_DOES_NOT_EXIST", message: "The requested image does not exist.", details: nil))
+            }
             break ;
         case "requestMetadata":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
@@ -227,6 +253,16 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)) {
+        let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
+        options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
+            return true
+        }
+        mPhasset.requestContentEditingInput(with: options, completionHandler: { (contentEditingInput, info) in
+            completionHandler(contentEditingInput!.fullSizeImageURL)
+        })
     }
     
     func readPhotosMetadata(result: PHFetchResult<PHAsset>, operationQueue: OperationQueue, callback: @escaping FlutterResult) {
