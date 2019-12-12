@@ -4,12 +4,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### Change (v4.6.0-rc.1)
+
+## 2019-11-08
+
+- BREAKING CHANGE: Compatibility for [breaking change in Flutter 1.10.15](https://groups.google.com/forum/#!topic/flutter-announce/lUKzLAd8OG8)
+
+### Changed (v4.5.9)
+
+## 2019-10-29
+
+- Images that fail to download from iCloud on iOS will now throw `AssetFailedToDownloadException` exception if you try to access the path.
+  
+### Changed (v4.5.8)
+
+## 2019-10-09
+
+- `getByteData` and `getThumbByteData` now will return the current image with all adjustments on iOS [#277](https://github.com/Sh1d0w/multi_image_picker/issues/277)
+
+### Changed (v4.5.7)
+
+## 2019-10-06
+
+- Add new option for both Android and iOS `autoCloseOnSelectionLimit`. It will close the image picker as soon as the selection limit is reached.
+
+### Changed (v4.5.6)
+
+## 2019-09-26
+
+- Fix crash on iOS when optimize storage is enabled
+
+### Changed (v4.5.5)
+
+## 2019-09-16
+
+- Update BSImagePicker version to 2.10.2
+
+### Changed (v4.5.4)
+
+## 2019-09-11
+
+- Update BSImagePicker version to 2.10.1
+
+### Changed (v4.5.3)
+
+## 2019-09-03
+
+- Update FishBun to version 0.11.1
+- Fixed picking image using camera does not return FilePath [#226](https://github.com/Sh1d0w/multi_image_picker/issues/226)
+
 ### Changed (v4.5.2)
 
 ## 2019-08-19
 
 - Trying to read images that does not exists will now throw AssetNotFoundException [#222](https://github.com/Sh1d0w/multi_image_picker/issues/222)
- 
+
 ### Changed (v4.5.1)
 
 ## 2019-08-17
