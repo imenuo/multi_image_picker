@@ -62,6 +62,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let enableCamera = arguments["enableCamera"] as! Bool
             let options = arguments["iosOptions"] as! Dictionary<String, String>
             let selectedAssets = arguments["selectedAssets"] as! Array<String>
+            var totalImagesSelected = 0
+            
             vc.maxNumberOfSelections = maxImages
 
             if (enableCamera) {
@@ -117,9 +119,17 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
 
             controller!.bs_presentImagePickerController(vc, animated: true,
                 select: { (asset: PHAsset) -> Void in
-
+                    totalImagesSelected += 1
+                    
+                    if let autoCloseOnSelectionLimit = options["autoCloseOnSelectionLimit"] {
+                        if (!autoCloseOnSelectionLimit.isEmpty && autoCloseOnSelectionLimit == "true") {
+                            if (maxImages == totalImagesSelected) {
+                                UIApplication.shared.sendAction(vc.doneButton.action!, to: vc.doneButton.target, from: self, for: nil)
+                            }
+                        }
+                    }
                 }, deselect: { (asset: PHAsset) -> Void in
-
+                    totalImagesSelected -= 1
                 }, cancel: { (assets: [PHAsset]) -> Void in
                     result(FlutterError(code: "CANCELLED", message: "The user has cancelled the selection", details: nil))
                 }, finish: { (assets: [PHAsset]) -> Void in
@@ -149,6 +159,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             options.resizeMode = PHImageRequestOptionsResizeMode.exact
             options.isSynchronous = false
             options.isNetworkAccessAllowed = true
+            options.version = .current
 
             let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
 
@@ -171,7 +182,6 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             }
             
             return result(FlutterError(code: "ASSET_DOES_NOT_EXIST", message: "The requested image does not exist.", details: nil))
-            break;
         case "requestOriginal":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let identifier = arguments["identifier"] as! String
@@ -182,6 +192,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
             options.isSynchronous = false
             options.isNetworkAccessAllowed = true
+            options.version = .current
 
             let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
 
@@ -204,20 +215,16 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             }
             
             return result(FlutterError(code: "ASSET_DOES_NOT_EXIST", message: "The requested image does not exist.", details: nil))
-            break;
-        case "refreshImage":
-            result(true) ;
-            break ;
         case "requestFilePath":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let identifier = arguments["identifier"] as! String
-            let manager = PHImageManager.default()
             let options = PHImageRequestOptions()
 
             options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
             options.isSynchronous = false
             options.isNetworkAccessAllowed = true
-
+            options.version = .current
+            
             let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
 
             if (assets.count > 0) {
@@ -234,6 +241,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                         let slicedUrl = absoluteUrl[range]
                         
                         result(String(slicedUrl))
+                    } else {
+                        result(FlutterError(code: "ASSET_FAILED_TO_DOWNLOAD_AVAILABLE", message: "The requested image failed to download.", details: nil))
                     }
                 }
             } else {
@@ -257,11 +266,17 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
 
     func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)) {
         let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
+        options.isNetworkAccessAllowed = true
         options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
             return true
         }
         mPhasset.requestContentEditingInput(with: options, completionHandler: { (contentEditingInput, info) in
-            completionHandler(contentEditingInput!.fullSizeImageURL)
+            if let image = contentEditingInput {
+                completionHandler(image.fullSizeImageURL)
+            } else {
+                completionHandler(nil)
+            }
+            
         })
     }
     

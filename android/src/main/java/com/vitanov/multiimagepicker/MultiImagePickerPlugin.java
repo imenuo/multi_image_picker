@@ -556,18 +556,11 @@ public class MultiImagePickerPlugin implements
     }
 
     private boolean uriExists(String identifier) {
-        Boolean exists = false;
-        ContentResolver cr = context.getContentResolver();
-        String[] projection = {MediaStore.MediaColumns.DATA};
-        Cursor cur = cr.query(Uri.parse(identifier), projection, null, null, null);
-        if (cur != null) {
-            if (cur.moveToFirst()) {
-                String filePath = cur.getString(0);
-                exists = new File(filePath).exists();
-            }
-        }
+        Uri uri = Uri.parse(identifier);
 
-        return exists;
+        String fileName = this.getFileName(uri);
+
+        return (fileName != null);
     }
 
     private void presentPicker(int maxImages, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {
@@ -584,6 +577,7 @@ public class MultiImagePickerPlugin implements
         String textOnNothingSelected = options.get("textOnNothingSelected");
         String backButtonDrawable = options.get("backButtonDrawable");
         String okButtonDrawable = options.get("okButtonDrawable");
+        String autoCloseOnSelectionLimit = options.get("autoCloseOnSelectionLimit");
         ArrayList<Uri> selectedUris = new ArrayList<Uri>();
 
         for (String path : selectedAssets) {
@@ -598,6 +592,7 @@ public class MultiImagePickerPlugin implements
                 .setSelectedImages(selectedUris)
                 .exceptGif(true)
                 .setIsUseDetailView(useDetailsView.equals("true"))
+                .setReachLimitAutomaticClose(autoCloseOnSelectionLimit.equals("true"))
                 .isStartInAllView(startInAllView.equals("true"));
 
         if (!textOnNothingSelected.isEmpty()) {
